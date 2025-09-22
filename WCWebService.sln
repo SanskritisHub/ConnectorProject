@@ -7,21 +7,21 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "aam-fm-qbd-connector", ".",
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6.1"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_54471"
-		Debug.AspNetCompiler.PhysicalPath = "..\"
+		Debug.AspNetCompiler.PhysicalPath = "..\aam-fm-qbd-connector\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_54471\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/localhost_54471"
-		Release.AspNetCompiler.PhysicalPath = "..\"
+		Release.AspNetCompiler.PhysicalPath = "..\aam-fm-qbd-connector\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_54471\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "54471"
-		SlnRelativePath = "..\"
+		SlnRelativePath = "..\aam-fm-qbd-connector\"
 	EndProjectSection
 EndProject
 Global
@@ -36,6 +36,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4DC7C037-A940-4B15-A381-C59CC0D718E8}
+		SolutionGuid = {C40875B9-0ED4-4385-A6D2-A9B67D531373}
 	EndGlobalSection
 EndGlobal
