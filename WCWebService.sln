@@ -6,21 +6,21 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "aam-fm-qbd-connector", ".",
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6.1"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_54471"
-		Debug.AspNetCompiler.PhysicalPath = "aam-fm-qbd-connector\"
+		Debug.AspNetCompiler.PhysicalPath = "C:\Users\User\Downloads\aam-fm-qbd-connector\aam-fm-qbd-connector\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_54471\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/localhost_54471"
-		Release.AspNetCompiler.PhysicalPath = "aam-fm-qbd-connector\"
+		Release.AspNetCompiler.PhysicalPath = "C:\Users\User\Downloads\aam-fm-qbd-connector\aam-fm-qbd-connector\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_54471\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "54471"
-		SlnRelativePath = "aam-fm-qbd-connector\"
+		SlnRelativePath = "C:\Users\User\Downloads\aam-fm-qbd-connector\aam-fm-qbd-connector\"
 	EndProjectSection
 EndProject
 Global
