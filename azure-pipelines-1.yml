@@ -7,6 +7,7 @@ pool:
 variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  solution: 'WCWebService.sln'
 
 steps:
 # Step 1: Checkout repository
