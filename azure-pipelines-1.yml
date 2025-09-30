@@ -1,33 +1,58 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
 - main
 
 pool:
   name: Default
+
 variables:
-  solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  solution: 'WCWebService.sln'
 
 steps:
+# Step 1: Checkout repository
+- checkout: self
+  clean: true
+  fetchDepth: 0
+
+# Step 2: Debug - Find solution file
+- powershell: |
+    Write-Host "Searching for solution files..."
+    $solutionFiles = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Filter "*.sln" -Recurse
+    
+    if ($solutionFiles.Count -eq 0) {
+        Write-Error "No solution files found!"
+        exit 1
+    }
+    
+    foreach ($file in $solutionFiles) {
+        Write-Host "Found: $($file.FullName)"
+    }
+    
+    # Set the solution path variable
+    $solutionPath = $solutionFiles[0].FullName
+    Write-Host "##vso[task.setvariable variable=dynamicSolution]$solutionPath"
+  displayName: 'Find Solution File'
+
+# Step 3: Install NuGet
 - task: NuGetToolInstaller@1
 
+# Step 4: Restore NuGet packages
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(solution)'
-
+    restoreSolution: '$(dynamicSolution)'
+    
+# Step 5: Build solution
 - task: VSBuild@1
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    solution: '$(dynamicSolution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+# Step 6: Publish artifacts
+- task: PublishBuildArtifacts@1
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
