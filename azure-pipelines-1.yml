@@ -5,47 +5,53 @@ pool:
   name: Default
 
 variables:
-  solution: 'aam-fm-qbd-connector/WCWebService.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-# Step 1: Checkout full repository including Website folder
+# Step 1: Checkout repository
 - checkout: self
   clean: true
-  persistCredentials: true
+  fetchDepth: 0
 
-# Step 2: Restore NuGet packages
+# Step 2: Debug - Find solution file
+- powershell: |
+    Write-Host "Searching for solution files..."
+    $solutionFiles = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Filter "*.sln" -Recurse
+    
+    if ($solutionFiles.Count -eq 0) {
+        Write-Error "No solution files found!"
+        exit 1
+    }
+    
+    foreach ($file in $solutionFiles) {
+        Write-Host "Found: $($file.FullName)"
+    }
+    
+    # Set the solution path variable
+    $solutionPath = $solutionFiles[0].FullName
+    Write-Host "##vso[task.setvariable variable=dynamicSolution]$solutionPath"
+  displayName: 'Find Solution File'
+
+# Step 3: Install NuGet
 - task: NuGetToolInstaller@1
 
+# Step 4: Restore NuGet packages
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(solution)'
-
-# Step 3: Build solution
+    restoreSolution: '$(dynamicSolution)'
+    
+# Step 5: Build solution
 - task: VSBuild@1
   inputs:
-    solution: '$(solution)'
+    solution: '$(dynamicSolution)'
     msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-# Step 4: Copy Website folder manually if needed
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/aam-fm-qbd-connector'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/aam-fm-qbd-connector'
-
-# Step 5: Publish artifacts
+# Step 6: Publish artifacts
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
-
-# Step 6: Optional: Run tests
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
