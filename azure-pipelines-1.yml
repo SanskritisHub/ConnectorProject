@@ -1,25 +1,28 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
 - main
 
 pool:
   name: Default
+
 variables:
-  solution: '**/*.sln'
+  solution: '**/WCWebService.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
+# Step 1: Checkout full repository including Website folder
+- checkout: self
+  clean: true
+  persistCredentials: true
+
+# Step 2: Restore NuGet packages
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
 
+# Step 3: Build solution
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
@@ -27,6 +30,21 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+# Step 4: Copy Website folder manually if needed
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/aam-fm-qbd-connector'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/aam-fm-qbd-connector'
+
+# Step 5: Publish artifacts
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+# Step 6: Optional: Run tests
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
