@@ -15,9 +15,8 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    command: 'custom'
     restoreSolution: 'WCWebService.sln'
-    restoreDirectory: '$(packagesDir)'
+    feedsToUse: 'select'
 
 - script: |
     echo "Copy missing DLLs to bin"
