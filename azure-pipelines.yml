@@ -13,10 +13,17 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
+- task: PowerShell@2
+  displayName: 'Copy NuGet DLLs to bin'
   inputs:
-    restoreSolution: '**\packages.config'
-    feedsToUse: 'select'
+    targetType: 'inline'
+    script: |
+      $packages = Get-ChildItem -Path "$(Build.SourcesDirectory)\packages" -Recurse -Include *.dll
+      $bin = "$(Build.SourcesDirectory)\bin"
+      if (-not (Test-Path $bin)) { New-Item -ItemType Directory -Path $bin }
+      foreach ($dll in $packages) {
+        Copy-Item $dll.FullName -Destination $bin -Force
+      }
 
 - script: |
     echo "Copy missing DLLs to bin"
