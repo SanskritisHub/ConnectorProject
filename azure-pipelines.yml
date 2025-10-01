@@ -8,24 +8,26 @@ variables:
   solution: 'WCWebService.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  packagesDir: '$(Build.SourcesDirectory)\packages'
 
 steps:
-# 1️⃣ Install NuGet
 - task: NuGetToolInstaller@1
 
-# 2️⃣ Restore NuGet packages for the solution
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(solution)'
-    feedsToUse: 'select'
+    command: 'custom'
+    restoreSolution: 'WCWebService.sln'
+    restoreDirectory: '$(packagesDir)'
 
-# 3️⃣ Build the Web Site (Web Site projects)
+- script: |
+    echo "Copy missing DLLs to bin"
+    mkdir "$(Build.SourcesDirectory)\bin"
+    xcopy /Y /S "$(packagesDir)\**\*.dll" "$(Build.SourcesDirectory)\bin\"
+  displayName: 'Copy NuGet DLLs to bin'
+
 - task: VSBuild@1
-  displayName: 'Build Web Site Project'
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    solution: 'WCWebService.sln'
     msbuildArgs: >
       /p:DeployOnBuild=true
       /p:WebPublishMethod=Package
@@ -34,9 +36,5 @@ steps:
       /p:PackageLocation="$(Build.ArtifactStagingDirectory)\WCWebService"
       /p:UseWPP_CopyWebApplication=true
       /p:AutoParameterizationWebConfigConnectionStrings=false
-
-# 4️⃣ Publish artifacts
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)\aam-fm-qbd-connector'
-    artifactName: 'aam-fm-qbd-connector'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
