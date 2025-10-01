@@ -1,8 +1,3 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
 - main
 
@@ -10,21 +5,45 @@ pool:
   name: Default
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  sourceFolder: '$(Build.SourcesDirectory)'
+  artifactFolder: '$(Build.ArtifactStagingDirectory)'
+  packagesFolder: '$(Build.SourcesDirectory)\packages'
 
 steps:
+# Restore NuGet packages
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(solution)'
+    restoreSolution: '$(sourceFolder)\WCWebService.sln'
+    feedsToUse: 'select'
 
-- task: VSBuild@1
+# Copy NuGet DLLs to bin if they exist
+- powershell: |
+    $bin = "$(sourceFolder)\bin"
+    if (-not (Test-Path $bin)) { New-Item -ItemType Directory -Path $bin }
+    if (Test-Path "$(packagesFolder)") {
+        Get-ChildItem "$(packagesFolder)" -Recurse -Include *.dll | ForEach-Object {
+            Copy-Item $_.FullName -Destination $bin -Force
+        }
+    }
+  displayName: 'Copy NuGet DLLs to bin (if any)'
+
+# Precompile Web Site
+- powershell: |
+    $output = "$(artifactFolder)\PrecompiledWeb"
+    if (-not (Test-Path $output)) { New-Item -ItemType Directory -Path $output }
+    & "$env:windir\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" `
+        -v / `
+        -p "$(sourceFolder)" `
+        -u `
+        -f $output
+  displayName: 'Precompile Web Site'
+
+# Archive precompiled site
+- task: ArchiveFiles@2
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
+    rootFolderOrFile: '$(artifactFolder)\PrecompiledWeb'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(artifactFolder)\WCWebService.zip'
