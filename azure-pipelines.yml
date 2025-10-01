@@ -21,13 +21,6 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: CopyFiles@2
-  displayName: 'Copy aam-fm-qbd-connector into solution folder'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)\aam-fm-qbd-connector\aam-fm-qbd-connector'  # adjust path to your repo structure
-    Contents: '**'
-    TargetFolder: '$(Build.SourcesDirectory)\aam-fm-qbd-connector'
-
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
