@@ -13,17 +13,13 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: PowerShell@2
-  displayName: 'Copy NuGet DLLs to bin'
+- task: ArchiveFiles@2
   inputs:
-    targetType: 'inline'
-    script: |
-      $packages = Get-ChildItem -Path "$(Build.SourcesDirectory)\packages" -Recurse -Include *.dll
-      $bin = "$(Build.SourcesDirectory)\bin"
-      if (-not (Test-Path $bin)) { New-Item -ItemType Directory -Path $bin }
-      foreach ($dll in $packages) {
-        Copy-Item $dll.FullName -Destination $bin -Force
-      }
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\WCWebService.zip'
+
 
 - script: |
     echo "Copy missing DLLs to bin"
