@@ -5,7 +5,7 @@ pool:
   name: Default
 
 variables:
-  solution: 's/WCWebService.sln'  # use the solution in your repo root
+  solution: 'WCWebService.sln'  # use the solution in your repo root
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
