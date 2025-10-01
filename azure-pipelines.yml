@@ -5,36 +5,45 @@ pool:
   name: Default
 
 variables:
-  solution: 'WCWebService.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  packagesDir: '$(Build.SourcesDirectory)\packages'
+  sourceFolder: '$(Build.SourcesDirectory)'
+  artifactFolder: '$(Build.ArtifactStagingDirectory)'
+  packagesFolder: '$(Build.SourcesDirectory)\packages'
 
 steps:
+# Restore NuGet packages
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(sourceFolder)\WCWebService.sln'
+    feedsToUse: 'select'
+
+# Copy NuGet DLLs to bin if they exist
+- powershell: |
+    $bin = "$(sourceFolder)\bin"
+    if (-not (Test-Path $bin)) { New-Item -ItemType Directory -Path $bin }
+    if (Test-Path "$(packagesFolder)") {
+        Get-ChildItem "$(packagesFolder)" -Recurse -Include *.dll | ForEach-Object {
+            Copy-Item $_.FullName -Destination $bin -Force
+        }
+    }
+  displayName: 'Copy NuGet DLLs to bin (if any)'
+
+# Precompile Web Site
+- powershell: |
+    $output = "$(artifactFolder)\PrecompiledWeb"
+    if (-not (Test-Path $output)) { New-Item -ItemType Directory -Path $output }
+    & "$env:windir\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" `
+        -v / `
+        -p "$(sourceFolder)" `
+        -u `
+        -f $output
+  displayName: 'Precompile Web Site'
+
+# Archive precompiled site
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(sourceFolder)'
+    rootFolderOrFile: '$(artifactFolder)\PrecompiledWeb'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(artifactFolder)\WCWebService.zip'
-
-
-- script: |
-    echo "Copy missing DLLs to bin"
-    mkdir "$(Build.SourcesDirectory)\bin"
-    xcopy /Y /S "$(packagesDir)\**\*.dll" "$(Build.SourcesDirectory)\bin\"
-  displayName: 'Copy NuGet DLLs to bin'
-
-- task: VSBuild@1
-  inputs:
-    solution: 'WCWebService.sln'
-    msbuildArgs: >
-      /p:DeployOnBuild=true
-      /p:WebPublishMethod=Package
-      /p:PackageAsSingleFile=true
-      /p:SkipInvalidConfigurations=true
-      /p:PackageLocation="$(Build.ArtifactStagingDirectory)\WCWebService"
-      /p:UseWPP_CopyWebApplication=true
-      /p:AutoParameterizationWebConfigConnectionStrings=false
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
