@@ -10,26 +10,16 @@ variables:
   packagesFolder: '$(Build.SourcesDirectory)\packages'
 
 steps:
-# Restore NuGet packages
+# Install NuGet
 - task: NuGetToolInstaller@1
 
+# Restore NuGet packages
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(sourceFolder)\WCWebService.sln'
     feedsToUse: 'select'
 
-# Copy NuGet DLLs to bin if they exist
-- powershell: |
-    $bin = "$(sourceFolder)\bin"
-    if (-not (Test-Path $bin)) { New-Item -ItemType Directory -Path $bin }
-    if (Test-Path "$(packagesFolder)") {
-        Get-ChildItem "$(packagesFolder)" -Recurse -Include *.dll | ForEach-Object {
-            Copy-Item $_.FullName -Destination $bin -Force
-        }
-    }
-  displayName: 'Copy NuGet DLLs to bin (if any)'
-
-# Precompile Web Site
+# Precompile Web Site (only once, correct path)
 - powershell: |
     $output = "$(artifactFolder)\PrecompiledWeb"
     if (-not (Test-Path $output)) { New-Item -ItemType Directory -Path $output }
