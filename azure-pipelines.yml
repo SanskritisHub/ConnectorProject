@@ -15,7 +15,7 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: 'WCWebService.sln'
+    restoreSolution: '**\packages.config'
     feedsToUse: 'select'
 
 - script: |
