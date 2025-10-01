@@ -5,21 +5,38 @@ pool:
   name: Default
 
 variables:
-  solution: 'WCWebService.sln'  # use the solution in your repo root
+  solution: 'WCWebService.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
+# 1️⃣ Install NuGet
 - task: NuGetToolInstaller@1
 
+# 2️⃣ Restore NuGet packages for the solution
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
     feedsToUse: 'select'
 
+# 3️⃣ Build the Web Site (Web Site projects)
 - task: VSBuild@1
+  displayName: 'Build Web Site Project'
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: >
+      /p:DeployOnBuild=true
+      /p:WebPublishMethod=Package
+      /p:PackageAsSingleFile=true
+      /p:SkipInvalidConfigurations=true
+      /p:PackageLocation="$(Build.ArtifactStagingDirectory)\aam-fm-qbd-connector"
+      /p:UseWPP_CopyWebApplication=true
+      /p:AutoParameterizationWebConfigConnectionStrings=false
+
+# 4️⃣ Publish artifacts
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)\aam-fm-qbd-connector'
+    artifactName: 'aam-fm-qbd-connector'
