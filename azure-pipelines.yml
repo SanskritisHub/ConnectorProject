@@ -19,6 +19,12 @@ steps:
     restoreSolution: '$(sourceFolder)\WCWebService.sln'
     feedsToUse: 'select'
 
+- powershell: |
+    $publish = "$(sourceFolder)\bin\release\publish"
+    if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
+  displayName: 'Clean publish folder to avoid nested web.config'
+
+
 # Precompile Web Site (only once, correct path)
 - powershell: |
     $output = "$(artifactFolder)\PrecompiledWeb"
