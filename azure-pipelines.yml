@@ -11,14 +11,12 @@ variables:
   packagesDir: '$(Build.SourcesDirectory)\packages'
 
 steps:
-- task: NuGetToolInstaller@1
-
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    rootFolderOrFile: '$(sourceFolder)'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)\WCWebService.zip'
+    archiveFile: '$(artifactFolder)\WCWebService.zip'
 
 
 - script: |
