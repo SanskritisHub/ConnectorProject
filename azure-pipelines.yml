@@ -43,3 +43,10 @@ steps:
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(artifactFolder)\WCWebService.zip'
+
+# Publish artifact so it can be deployed
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(artifactFolder)\WCWebService.zip'
+    artifact: 'drop'
+    publishLocation: 'pipeline'
